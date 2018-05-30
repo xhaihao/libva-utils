@@ -83,3 +83,10 @@ COLOR_BALANCE_CONTRAST:  1.2
 #5.6 Skin Tone Detection and Enhancement parameters
  # (One of 0, 3, 6, 9, default = 0)
 STDE_FACTOR: 9
+
+#6 pipeline parameters
+#6.1 output background color
+ #ignore when alpha is set 0
+OUTPUT_BACKGROUND_COLOR: 0x00FF0000
+ # red
+# OUTPUT_BACKGROUND_COLOR: 0xFFFF0000

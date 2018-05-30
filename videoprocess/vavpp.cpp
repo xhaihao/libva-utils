@@ -86,6 +86,8 @@ static uint8_t g_blending_max_luma = 254;
 
 static uint32_t g_frame_count = 0;
 
+static uint32_t g_bg_color = 0;
+
 static int8_t
 read_value_string(FILE *fp, const char* field_name, char* value)
 {
@@ -156,6 +158,20 @@ read_value_uint32(FILE* fp, const char* field_name, uint32_t* value)
     }
 
     *value = (uint32_t)atoi(str);
+    return 0;
+}
+
+static int8_t
+read_value_uint32_hex(FILE* fp, const char* field_name, uint32_t* value)
+{
+    char str[MAX_LEN];
+
+    if (read_value_string(fp, field_name, str)) {
+       printf("Failed to find integer field: %s", field_name);
+       return -1;
+    }
+
+    *value = (uint32_t)strtoul(str, NULL, 16);
     return 0;
 }
 
@@ -1408,6 +1424,15 @@ video_frame_process(VAProcFilterType filter_type,
     pipeline_param.filters      = &filter_param_buf_id;
     pipeline_param.num_filters  = filter_count;
 
+    pipeline_param.output_background_color = g_bg_color;
+
+    if (g_bg_color != 0) {
+        output_region.width /= 2;
+        output_region.x = output_region.width / 2;
+        output_region.height /= 2;
+        output_region.y = output_region.height / 2;
+    }
+
 #if BLEND_ON
     /* Blending related state */
     if (g_blending_enabled){
@@ -1677,6 +1702,11 @@ parse_basic_parameters()
     parse_fourcc_and_format(str, &g_dst_file_fourcc, NULL);
 
     read_value_uint32(g_config_file_fd, "FRAME_SUM", &g_frame_count);
+
+    read_value_uint32_hex(g_config_file_fd, "OUTPUT_BACKGROUND_COLOR", &g_bg_color);
+
+    if (!(g_bg_color & 0xFF000000))
+        g_bg_color = 0;
 
     /* Read filter type */
     if (read_value_string(g_config_file_fd, "FILTER_TYPE", g_filter_type_name)){
