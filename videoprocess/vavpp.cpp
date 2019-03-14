@@ -1398,8 +1398,11 @@ video_frame_process(VAProcFilterType filter_type,
     pipeline_param.surface = in_surface_id;
     pipeline_param.surface_region = &surface_region;
     pipeline_param.output_region = &output_region;
+    pipeline_param.output_color_standard = VAProcColorStandardBT601;
+    pipeline_param.surface_color_standard = VAProcColorStandardBT601;
+    pipeline_param.output_background_color = 0xff000000;
 
-    pipeline_param.filter_flags = 0;
+    pipeline_param.filter_flags = VA_FILTER_SCALING_HQ;
     pipeline_param.filters      = &filter_param_buf_id;
     pipeline_param.num_filters  = filter_count;
 
