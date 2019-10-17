@@ -70,6 +70,11 @@ static char g_filter_type_name[MAX_LEN];
 
 static uint32_t g_in_pic_width = 352;
 static uint32_t g_in_pic_height = 288;
+static uint32_t g_in_region_x = 0;
+static uint32_t g_in_region_y = 0;
+static uint32_t g_in_region_width = g_in_pic_width;
+static uint32_t g_in_region_height = g_in_pic_height;
+
 static uint32_t g_out_pic_width = 352;
 static uint32_t g_out_pic_height = 288;
 
@@ -1385,10 +1390,10 @@ video_frame_process(VAProcFilterType filter_type,
     }
 
     /* Fill pipeline buffer */
-    surface_region.x = 0;
-    surface_region.y = 0;
-    surface_region.width = g_in_pic_width;
-    surface_region.height = g_in_pic_height;
+    surface_region.x = g_in_region_x;
+    surface_region.y = g_in_region_y;
+    surface_region.width = g_in_region_width;
+    surface_region.height = g_in_region_height;
     output_region.x = 0;
     output_region.y = 0;
     output_region.width = g_out_pic_width;
@@ -1662,6 +1667,14 @@ parse_basic_parameters()
     read_value_string(g_config_file_fd, "SRC_FRAME_FORMAT", str);
     parse_fourcc_and_format(str, &g_in_fourcc, &g_in_format);
 
+    g_in_region_width = g_in_pic_width;
+    g_in_region_height = g_in_pic_height;
+
+    read_value_uint32(g_config_file_fd, "SRC_REGION_X", &g_in_region_x);
+    read_value_uint32(g_config_file_fd, "SRC_REGION_Y", &g_in_region_y);
+    read_value_uint32(g_config_file_fd, "SRC_REGION_WIDTH", &g_in_region_width);
+    read_value_uint32(g_config_file_fd, "SRC_REGION_HEIGHT", &g_in_region_height);
+
     /* Read dst frame file information */
     read_value_string(g_config_file_fd, "DST_FILE_NAME", g_dst_file_name);
     read_value_uint32(g_config_file_fd, "DST_FRAME_WIDTH", &g_out_pic_width);
@@ -1707,10 +1720,10 @@ parse_basic_parameters()
     if (g_blending_enabled)
         printf("Blending will be done \n");
 
-    if (g_in_pic_width != g_out_pic_width ||
-        g_in_pic_height != g_out_pic_height)
+    if (g_in_region_width != g_out_pic_width ||
+        g_in_region_height != g_out_pic_height)
         printf("Scaling will be done : from %4d x %4d to %4d x %4d \n",
-                g_in_pic_width, g_in_pic_height,
+                g_in_region_width, g_in_region_height,
                 g_out_pic_width, g_out_pic_height);
 
     if (g_in_fourcc != g_out_fourcc)
